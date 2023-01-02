@@ -1,0 +1,58 @@
+- name: install apache on Amazon Linux2
+  hosts: webservers
+  become: true
+  tasks: 
+  - name: installing httpd and wget
+    ansible.builtin.yum:
+      pkg: "{{ item }}"
+      state: present
+    loop:
+    - httpd
+    - wget
+
+- name: install apache on ubuntu
+  hosts: ubuntuservers
+  become: true
+  tasks:
+  - name: installing apache 
+    ansible.builtin.apt:
+      name: apache2
+      state: latest 
+
+  - name: update index.html
+    ansible.builtin.copy:
+      content: "<h1> Hallo Clarusway </h1>"
+      dest: /var/www/html/index.html
+
+  - name: restart apache2
+    ansible.builtin.service:
+      name: apache2
+      state: restarted
+      enabled: yes 
+      
+      
+
+
+# Remove Apache Webserver
+
+# - name: Remove Apache from webservers
+#   hosts: webservers
+#   become: true
+#   tasks:
+#    - name: Remove Apache
+#      yum:
+#        name: httpd
+#        state: absent
+
+# - name: Remove Apache from ubuntuservers
+#   hosts: ubuntuservers
+#   become: true
+#   tasks:
+#    - name: Remove Apache
+#      apt:
+#        name: apache2
+#        state: absent
+#    - name: Remove unwanted Apache2 packages from the system
+#      apt:
+#        autoremove: yes
+#        purge: yes
