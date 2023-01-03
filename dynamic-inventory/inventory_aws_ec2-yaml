@@ -1,0 +1,23 @@
+plugin: aws_ec2
+regions:
+  - "us-east-1"
+keyed_groups:
+  - key: tags.Name
+    prefix: my
+    separator: "__"
+  - key: tags.env
+  - prefix: arch
+    key: architecture
+  - prefix: tag
+    key: tags
+  - prefix: region
+    key: placement.region
+  - prefix: instance_type
+    key: instance_type
+filters:
+  instance-state-name : running
+compose:
+  ansible_host: public_ip_address
+  private_ip: private_ip_address
+  ec2_id: instance_id
+  key: key_name
