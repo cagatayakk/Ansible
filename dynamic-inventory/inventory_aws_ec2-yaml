@@ -4,7 +4,7 @@ regions:
 keyed_groups:
   - key: tags.Name
     prefix: my
-    separator: "__"
+    separator: "_"
   - key: tags.env
   - prefix: arch
     key: architecture
