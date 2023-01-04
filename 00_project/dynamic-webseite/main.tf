@@ -77,6 +77,22 @@ resource "null_resource" "config" {
     private_key = file("~/.ssh/${var.mykey}.pem")
     # Do not forget to define your key file path correctly!
   }
+  
+  provisioner "remote-exec" {
+    inline = [
+      "sudo hostnamectl set-hostname Control-Node",
+      "sudo yum install -y python3",
+      "pip3 install --user ansible",
+      "pip3 install --user boto3 botocore",
+      "mkdir project",
+      #"echo [servers] > inventory.txt",
+      #"echo db_server ansible_host=${aws_instance.nodes[1].private_ip} ansible_ssh_private_key_file=~/${var.mykey}.pem  ansible_user=ec2-user >> inventory.txt",
+      #"echo web_server ansible_host=${aws_instance.nodes[2].private_ip} ansible_ssh_private_key_file=~/${var.mykey}.pem  ansible_user=ec2-user >> inventory.txt",
+      "chmod 400 ${var.mykey}.pem"
+    ]
+  }
+
+}
 
   provisioner "file" {
     source = "./ansible.cfg"
@@ -109,20 +125,6 @@ resource "null_resource" "config" {
     destination = "/home/ec2-user/${var.mykey}.pem"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo hostnamectl set-hostname Control-Node",
-      "sudo yum install -y python3",
-      "pip3 install --user ansible",
-      "pip3 install --user boto3 botocore",
-      #"echo [servers] > inventory.txt",
-      #"echo db_server ansible_host=${aws_instance.nodes[1].private_ip} ansible_ssh_private_key_file=~/${var.mykey}.pem  ansible_user=ec2-user >> inventory.txt",
-      #"echo web_server ansible_host=${aws_instance.nodes[2].private_ip} ansible_ssh_private_key_file=~/${var.mykey}.pem  ansible_user=ec2-user >> inventory.txt",
-      "chmod 400 ${var.mykey}.pem"
-    ]
-  }
-
-}
 
 output "controlnodeip" {
   value = aws_instance.nodes[0].public_ip
