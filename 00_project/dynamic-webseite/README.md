@@ -7,6 +7,6 @@
 <hr>
 
 <p align="center">
-    <img alt="hpa" src="https://github.com/cagatayakk/Ansible/blob/main/00_project/dynamic-webseite/01.jpg" >
+    <img alt="hpa" src="https://github.com/cagatayakk/Ansible/blob/main/00_project/dynamic-webseite/02.jpg" >
 </p>
 <hr>
