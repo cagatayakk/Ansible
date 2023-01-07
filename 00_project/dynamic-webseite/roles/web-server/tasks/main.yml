@@ -1,0 +1,53 @@
+---
+# tasks file for /home/ec2-user/roles/web-server
+- name: install the latest version of git, Apache, php , php-mysqlnd
+  package:
+    name:
+    - git
+    - httpd
+    - php
+    - php-mysqlnd
+    state: latest
+
+- name: start the Apache Server and enable istekleri
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: clone the repo of the website
+  shell: |
+    if [ -z "$(ls -al /var/www/html | grep .git)" ]; then
+      git clone https://github.com/kodekloudhub/learning-app-ecommerce.git /var/www/html/
+      echo "ok"
+    else 
+      echo "already cloned"
+    fi
+  register: result
+
+- name: See the result of the clone
+  debug: 
+    var: result
+
+- name: Replace a default entry with our own
+  lineinfile:  #replace the line in the file with this module
+    path: /var/www/html/index.php
+    regexp: '172\.20\.1\.101'
+    line: "$link = mysqli_connect('{{ hostvars['db_server'].ansible_host }}', 'remoteUser', 'cagatay123', 'ecomdb');"
+  when: not result.stdout == "already cloned"
+
+
+- name: Disable selinux    # It's a RedHat related issue. If we don't use this module, 
+  selinux:                 # the web-server will have problems connecting to the database.
+    state: disabled 
+
+- name: Restart service httpd
+  service:
+    name: httpd
+    state: restarted
+
+
+
+
+
+  

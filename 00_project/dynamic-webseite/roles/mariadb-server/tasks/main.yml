@@ -1,0 +1,75 @@
+---
+# tasks file for /home/ec2-user/roles/mariadb-
+- name: install mariadb and PyMySQL
+  become: true
+  yum:
+    name:
+    - mariadb-server
+    - python3-PyMySQL
+    state: latest
+  
+- name: start mariadb-server
+  become: true
+  command: systemctl start mariadb
+
+- name: enable mariadb
+  become: true
+  service: 
+    name: mariadb
+    enabled: true
+
+- name: copy the SQL script
+  copy:
+    src: /home/ec2-user/project/db-load-script.sql
+    dest: ~/
+
+- name: Set Root password
+  community.mysql.mysql_user:
+    name: root
+    password: "cagatay123"
+    login_user: root
+    login_password: ''
+
+- name: copy the .my.cnf file
+  copy:
+    src: /home/ec2-user/project/.my.cnf
+    dest: ~/
+
+- name: Create db user  with all database privileges
+  mysql_user:
+    state: present
+    name: remoteUser
+    password: "cagatay123"
+    priv: '*.*:ALL,GRANT'
+    # login_user: root
+    # login_password: "cagatay123"
+    host: "{{ hostvars['web_server'].ansible_host }}" # web-server den gelen istekleri kabul eder .Private-IP ile
+ 
+- name: Create database schema
+  mysql_db:
+    name: ecomdb
+    # login_user: root
+    # login_password: "clarus1234"
+    state: present
+
+- name: check if the database has the table
+  shell: |
+    echo "USE ecomdb; show tables like 'products'; " | mysql
+  register: resultOfShowTables
+
+- name: DEBUG
+  debug:
+    var: resultOfShowTables
+
+- name: import database table
+  mysql_db:
+    name: ecomdb  # This is the database schema name.
+    state: import # This module is not idempotent when the state property value is import.
+    target: ~/db-load-script.sql # This script creates the products table.
+  when: resultOfShowTables.stdout == "" # This line checks if the table is already imported. If so this task doesn't run.
+
+- name: restart mariadb
+  become: yes
+  service: 
+    name: mariadb
+    state: restarted

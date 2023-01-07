@@ -1,0 +1,10 @@
+- name: db configuration
+  hosts: db_server
+  roles:
+  - mariadb-server
+
+- name: web-server configuration
+  hosts: web_server
+  become: yes
+  roles:
+  - web-server
